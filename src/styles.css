@@ -1,8 +1,8 @@
 :root {
   color-scheme: dark;
   font-family: "DM Sans", system-ui, sans-serif;
-  background: #0b1017;
-  color: #e8edf6;
+  background: #000;
+  color: #fff;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
@@ -27,628 +27,557 @@ button {
   cursor: pointer;
 }
 
-.app {
-  --panel: rgba(17, 22, 30, 0.58);
-  --line: rgba(255, 255, 255, 0.09);
-  min-height: 100vh;
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
+.spotifyApp {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 17rem 1fr;
+  grid-template-rows: 1fr 5.9rem;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #000;
+  color: #fff;
 }
 
-.backdrop,
-.backdrop img,
-.backdropTint {
-  position: fixed;
-  inset: 0;
+.spotifySidebar,
+.spotifyMain,
+.spotifyPlayer {
+  border-radius: 0.5rem;
+  background: #121212;
 }
 
-.backdrop {
-  z-index: -2;
-  background: #0b1017;
-}
-
-.backdrop img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.56;
-  transform: scale(1.04);
-  filter: saturate(0.92) contrast(1.05);
-  transition: opacity 500ms ease, transform 900ms ease;
-}
-
-.backdropTint {
-  z-index: 1;
-  background:
-    radial-gradient(circle at 62% 42%, color-mix(in srgb, var(--space-accent) 28%, transparent), transparent 31%),
-    radial-gradient(circle at 26% 28%, color-mix(in srgb, var(--space-color) 24%, transparent), transparent 27%),
-    linear-gradient(90deg, rgba(5, 8, 14, 0.92), rgba(8, 12, 18, 0.64) 48%, rgba(5, 8, 14, 0.84)),
-    linear-gradient(180deg, rgba(5, 8, 14, 0.16), rgba(5, 8, 14, 0.88));
-  backdrop-filter: blur(10px);
-}
-
-.sidebar {
-  position: fixed;
-  inset: 0 auto 0 0;
-  width: 16rem;
-  padding: 4rem 2rem;
+.spotifySidebar {
+  grid-row: 1 / 2;
+  padding: 1.5rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 3rem;
-  background: rgba(7, 11, 17, 0.42);
-  border-right: 1px solid var(--line);
-  backdrop-filter: blur(28px);
-  z-index: 4;
+  gap: 1.8rem;
 }
 
-.brand {
-  margin: 0;
-  color: var(--space-color);
-  font-size: 1.6rem;
-  letter-spacing: 0.33em;
-  text-transform: uppercase;
-  font-weight: 500;
+.logo {
+  color: #1ed760;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
 }
 
-.eyebrow {
-  margin: 0;
-  color: rgba(219, 227, 239, 0.58);
-  font-size: 0.72rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  font-weight: 700;
-}
-
-.sideNav {
+.spotifySidebar nav {
   display: grid;
-  gap: 0.55rem;
+  gap: 0.35rem;
 }
 
-.sideLink {
-  color: rgba(219, 227, 239, 0.58);
+.navItem {
+  min-height: 2.8rem;
   display: flex;
   align-items: center;
   gap: 0.9rem;
+  padding: 0 0.75rem;
+  border-radius: 0.45rem;
+  color: #b3b3b3;
   text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: 0.82rem;
-  padding: 0.85rem 0;
+  font-weight: 700;
 }
 
-.sideLink.active {
-  color: var(--space-color);
+.navItem.active,
+.navItem:hover {
+  color: #fff;
+  background: #1f1f1f;
 }
 
-.profile {
-  margin-top: auto;
+.playlistBox {
+  display: grid;
+  gap: 0.75rem;
+  color: #b3b3b3;
+  overflow: hidden;
+}
+
+.playlistBox strong {
+  color: #fff;
+}
+
+.spotifyMain {
+  min-width: 0;
+  overflow: auto;
+  padding: 1rem 1.5rem 2rem;
+  background:
+    linear-gradient(180deg, rgba(30, 215, 96, 0.22), rgba(18, 18, 18, 0) 18rem),
+    #121212;
+}
+
+.spotifyTop {
+  position: sticky;
+  top: -1rem;
+  z-index: 3;
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0 1rem;
+  background: linear-gradient(180deg, rgba(22, 58, 35, 0.96), rgba(22, 45, 31, 0.74));
+  backdrop-filter: blur(18px);
 }
 
-.avatar {
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 50%;
+.searchBar {
+  width: min(32rem, 100%);
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0 1rem;
+  border-radius: 999px;
+  color: #121212;
+  background: #fff;
+}
+
+.searchBar input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  color: #121212;
+  background: transparent;
+}
+
+.status {
+  color: #d7fbe3;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.heroPlayer {
   display: grid;
-  place-items: center;
-  color: #07101a;
-  background: linear-gradient(135deg, var(--space-color), var(--space-accent));
+  grid-template-columns: 14rem minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: end;
+  padding: 2.2rem 0 1.5rem;
+}
+
+.heroPlayer img {
+  width: 14rem;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 0.35rem;
+  box-shadow: 0 2rem 5rem rgba(0, 0, 0, 0.55);
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.heroPlayer h1 {
+  margin: 0;
+  font-size: clamp(2.4rem, 7vw, 5.8rem);
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+  max-width: 12ch;
+}
+
+.heroPlayer p {
+  margin: 1rem 0 0;
+  color: #d8d8d8;
+  font-size: 1.1rem;
+}
+
+.heroButtons {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.4rem;
+}
+
+.greenButton,
+.ghostButton {
+  min-height: 3rem;
+  border: 0;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1.4rem;
   font-weight: 800;
 }
 
-.profile strong,
-.profile span {
-  display: block;
+.greenButton {
+  color: #000;
+  background: #1ed760;
 }
 
-.profile span {
-  color: rgba(219, 227, 239, 0.5);
-  font-size: 0.72rem;
-  margin-top: 0.15rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+.ghostButton {
+  color: #fff;
+  background: #242424;
 }
 
-.shell {
-  min-height: 100vh;
-  margin-left: 16rem;
-  padding: 1rem 2rem 8.6rem;
-  display: flex;
-  flex-direction: column;
+.contentSplit {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 21rem;
+  gap: 1.4rem;
+  align-items: start;
 }
 
-.topbar {
-  min-height: 4.6rem;
+.sectionHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding-bottom: 1rem;
+  margin: 1rem 0;
 }
 
-h1,
-h2,
-h3,
-p {
-  overflow-wrap: anywhere;
+.sectionHeader h2,
+.queuePanel h2 {
+  margin: 0;
+  font-size: 1.45rem;
 }
 
-.topbar h1 {
-  margin: 0.15rem 0 0;
-  font-size: clamp(1.45rem, 3vw, 2.15rem);
-  font-weight: 400;
-  letter-spacing: 0.04em;
+.sectionHeader span {
+  color: #b3b3b3;
+  font-size: 0.88rem;
 }
 
-.topActions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  color: rgba(219, 227, 239, 0.64);
-}
-
-.pillButton,
-.resetButton,
-.shareButton {
-  border: 1px solid color-mix(in srgb, var(--space-color) 32%, transparent);
-  border-radius: 999px;
-  color: var(--space-color);
-  background: color-mix(in srgb, var(--space-color) 12%, transparent);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  padding: 0.65rem 1rem;
-}
-
-.contentGrid {
-  flex: 1;
+.trackGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem);
-  align-items: center;
-  gap: 1.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
 }
 
-.playerStage {
+.trackCard {
+  position: relative;
   min-width: 0;
+  min-height: 5rem;
   display: grid;
-  place-items: center;
-  text-align: center;
-}
-
-.coverWrap {
-  width: min(32vw, 22rem);
-  min-width: 14rem;
-  aspect-ratio: 1;
-  position: relative;
-  border-radius: 2rem;
-}
-
-.cover {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: inherit;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 2rem 6rem rgba(0, 0, 0, 0.45);
-}
-
-.coverReflection {
-  position: absolute;
-  inset: -7%;
-  border-radius: 2.3rem;
-  background:
-    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--space-color) 36%, transparent), transparent 58%),
-    radial-gradient(circle at 68% 24%, color-mix(in srgb, var(--space-accent) 24%, transparent), transparent 36%);
-  filter: blur(30px);
-  opacity: 0.75;
-}
-
-.trackInfo {
-  margin: 0 0 1.25rem;
-}
-
-.trackInfo h2 {
-  margin: 0.55rem 0 0;
-  font-size: clamp(1.7rem, 4vw, 2.7rem);
-  font-weight: 300;
-  letter-spacing: 0.08em;
-}
-
-.trackInfo p:last-child {
-  margin: 0.5rem 0 0;
-  color: var(--space-color);
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-}
-
-.youtubePlayer {
-  width: min(30rem, 88%);
-  aspect-ratio: 16 / 9;
-  margin-top: 1rem;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(4, 7, 12, 0.6);
-  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.28);
-}
-
-.youtubePlayer iframe {
-  display: block;
-  width: 100%;
-  height: 100%;
+  grid-template-columns: 5rem minmax(0, 1fr) 2.6rem;
+  align-items: center;
+  gap: 0.8rem;
   border: 0;
-}
-
-.infoRail {
-  display: grid;
-  gap: 1rem;
-  max-height: calc(100vh - 9rem);
-  overflow: auto;
-  padding-right: 0.15rem;
-}
-
-.panel,
-.quotePanel {
-  border: 1px solid var(--line);
-  border-radius: 0.5rem;
-  background: var(--panel);
-  backdrop-filter: blur(30px);
-  padding: 1.25rem;
-  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.2);
-}
-
-.panelHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: var(--space-color);
-}
-
-.spaceList,
-.layerList {
-  display: grid;
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-.spaceChoice {
+  border-radius: 0.45rem;
+  padding: 0;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
   text-align: left;
-  border: 1px solid transparent;
-  border-radius: 0.5rem;
-  padding: 0.9rem 1rem;
-  color: #edf3fb;
-  background: rgba(255, 255, 255, 0.045);
+  overflow: hidden;
 }
 
-.spaceChoice.selected {
-  border-color: color-mix(in srgb, var(--space-color) 36%, transparent);
-  background: color-mix(in srgb, var(--space-color) 14%, rgba(255, 255, 255, 0.04));
+.trackCard:hover,
+.trackCard.selected {
+  background: rgba(255, 255, 255, 0.18);
 }
 
-.spaceChoice span,
-.spaceChoice small {
+.trackCard img {
+  width: 5rem;
+  height: 5rem;
+  object-fit: cover;
+}
+
+.trackCard strong,
+.trackCard small,
+.queueItem strong,
+.queueItem small,
+.miniTrack strong,
+.miniTrack small {
   display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.spaceChoice small {
-  margin-top: 0.25rem;
-  color: rgba(219, 227, 239, 0.5);
+.trackCard small,
+.queueItem small,
+.miniTrack small {
+  color: #b3b3b3;
+  margin-top: 0.18rem;
 }
 
-.layer {
-  display: grid;
-  gap: 0.65rem;
-  color: rgba(237, 243, 251, 0.84);
-}
-
-.layer span {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 0.75rem;
-}
-
-input[type="range"] {
-  width: 100%;
-  accent-color: var(--space-color);
-}
-
-.searchBox {
-  display: grid;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  color: rgba(219, 227, 239, 0.6);
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-}
-
-.searchBox input {
-  width: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.5rem;
-  padding: 0.75rem 0.85rem;
-  color: #edf3fb;
-  background: rgba(255, 255, 255, 0.055);
-  outline: none;
-}
-
-.searchBox input:focus {
-  border-color: color-mix(in srgb, var(--space-color) 45%, transparent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--space-color) 16%, transparent);
-}
-
-.videoList {
-  display: grid;
-  gap: 0.65rem;
-  margin-top: 0.9rem;
-}
-
-.videoChoice {
-  display: grid;
-  grid-template-columns: 4.5rem 1fr;
-  align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-  min-height: 4rem;
-  border: 1px solid transparent;
-  border-radius: 0.5rem;
+.cardPlay {
+  width: 2rem;
+  height: 2rem;
   padding: 0.45rem;
-  color: #edf3fb;
-  background: rgba(255, 255, 255, 0.045);
+  border-radius: 50%;
+  color: #000;
+  background: #1ed760;
+  opacity: 0;
+}
+
+.trackCard:hover .cardPlay,
+.trackCard.selected .cardPlay {
+  opacity: 1;
+}
+
+.tableTitle {
+  margin-top: 1.8rem;
+}
+
+.trackTable {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.trackRow {
+  width: 100%;
+  min-height: 3.8rem;
+  display: grid;
+  grid-template-columns: 2rem 3rem minmax(0, 1fr) minmax(8rem, 0.45fr) 4rem;
+  align-items: center;
+  gap: 0.8rem;
+  border: 0;
+  border-radius: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  color: #b3b3b3;
+  background: transparent;
   text-align: left;
 }
 
-.videoChoice.selected {
-  border-color: color-mix(in srgb, var(--space-color) 36%, transparent);
-  background: color-mix(in srgb, var(--space-color) 12%, rgba(255, 255, 255, 0.04));
+.trackRow:hover,
+.trackRow.selected {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
 }
 
-.videoChoice img {
-  width: 4.5rem;
+.trackRow img {
+  width: 3rem;
   height: 3rem;
   object-fit: cover;
-  border-radius: 0.35rem;
+  border-radius: 0.2rem;
 }
 
-.videoChoice strong,
-.videoChoice small {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
+.rowTitle {
+  min-width: 0;
 }
 
-.videoChoice strong {
-  -webkit-line-clamp: 2;
-  line-height: 1.25;
-  font-size: 0.86rem;
-}
-
-.videoChoice small {
-  -webkit-line-clamp: 1;
-  margin-top: 0.2rem;
-  color: rgba(219, 227, 239, 0.5);
-}
-
-.youtubeMessage {
-  margin: 0.9rem 0 0;
-  color: rgba(219, 227, 239, 0.62);
-  font-size: 0.86rem;
-  line-height: 1.5;
-}
-
-.quotePanel p {
-  margin: 0;
-  color: rgba(237, 243, 251, 0.74);
-  line-height: 1.7;
-  font-style: italic;
-}
-
-.controls {
-  position: fixed;
-  left: 50%;
-  bottom: 1.25rem;
-  transform: translateX(-50%);
-  width: min(58rem, calc(100% - 2rem));
-  padding: 1rem 1.4rem;
-  border: 1px solid var(--line);
-  border-radius: 1.4rem;
-  background: rgba(20, 25, 34, 0.72);
-  backdrop-filter: blur(34px);
-  box-shadow: 0 2rem 5rem rgba(0, 0, 0, 0.45);
-  z-index: 6;
-}
-
-.timelineTrack {
-  width: 100%;
-  height: 0.45rem;
-  display: block;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-  overflow: hidden;
-}
-
-.timelineTrack span {
-  display: block;
-  height: 100%;
-  width: var(--progress);
-  border-radius: inherit;
-  background: linear-gradient(90deg, var(--space-color), var(--space-accent));
-  box-shadow: 0 0 1.2rem color-mix(in srgb, var(--space-color) 55%, transparent);
-}
-
-.timeRow {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 0.45rem;
-  color: rgba(219, 227, 239, 0.48);
-  font-size: 0.72rem;
-}
-
-.controlButtons {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  gap: 0.7rem;
-  margin-top: 0.6rem;
-}
-
-.controlButtons button,
-.drawerHeader button {
-  border: 0;
-  color: rgba(219, 227, 239, 0.62);
-  background: transparent;
-  display: inline-grid;
-  place-items: center;
-  min-width: 2.75rem;
-  min-height: 2.75rem;
-  border-radius: 999px;
-  transition: transform 180ms ease, color 180ms ease, background 180ms ease;
-}
-
-.controlButtons button:hover,
-.drawerHeader button:hover {
+.rowTitle strong {
   color: #fff;
-  background: rgba(255, 255, 255, 0.06);
-  transform: translateY(-1px);
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.controlButtons .playButton {
-  width: 4.3rem;
-  height: 4.3rem;
-  color: #07101a;
-  background: linear-gradient(135deg, var(--space-color), var(--space-accent));
-  box-shadow: 0 0 2.3rem color-mix(in srgb, var(--space-color) 38%, transparent);
+.rowTitle small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.controlButtons .liked {
-  color: var(--space-accent);
-}
-
-.drawer {
-  position: fixed;
-  inset: 0 0 0 auto;
-  z-index: 8;
-  width: min(24rem, 100%);
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  background: rgba(11, 15, 22, 0.82);
-  border-left: 1px solid var(--line);
-  backdrop-filter: blur(34px);
-  transform: translateX(100%);
-  transition: transform 260ms ease;
-}
-
-.drawer.open {
-  transform: translateX(0);
-}
-
-.drawerHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: start;
-  gap: 1rem;
-}
-
-.drawerHeader h3 {
-  margin: 0.35rem 0 0;
-  font-weight: 400;
-  font-size: 1.55rem;
-}
-
-.drawerLayer {
+.queuePanel {
+  position: sticky;
+  top: 5rem;
   display: grid;
+  gap: 0.65rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background: rgba(0, 0, 0, 0.26);
+}
+
+.queueItem {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+  border: 0;
+  border-radius: 0.4rem;
+  padding: 0.35rem;
+  color: #fff;
+  background: transparent;
+  text-align: left;
+}
+
+.queueItem:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.queueItem img {
+  width: 3.5rem;
+  height: 3.5rem;
+  object-fit: cover;
+  border-radius: 0.25rem;
+}
+
+.spotifyPlayer {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(12rem, 1fr) minmax(20rem, 2fr) minmax(10rem, 1fr);
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+}
+
+.miniTrack {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 3.6rem minmax(0, 1fr) 2rem;
+  align-items: center;
   gap: 0.75rem;
 }
 
-.drawerLayer span {
+.miniTrack img {
+  width: 3.6rem;
+  height: 3.6rem;
+  object-fit: cover;
+  border-radius: 0.25rem;
+}
+
+.centerControls {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.buttonRow {
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  color: rgba(237, 243, 251, 0.78);
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
 }
 
-.drawerLayer strong {
-  color: var(--space-color);
+.iconButton,
+.roundPlay {
+  border: 0;
+  display: grid;
+  place-items: center;
+  color: #b3b3b3;
+  background: transparent;
 }
 
-.resetButton,
-.shareButton {
+.iconButton:hover,
+.liked {
+  color: #1ed760;
+}
+
+.roundPlay {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  color: #000;
+  background: #fff;
+}
+
+.progressLine {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr 4rem;
+  align-items: center;
+  gap: 0.65rem;
+  color: #b3b3b3;
+  font-size: 0.74rem;
+}
+
+.progressLine div,
+.volumeLine {
+  height: 0.28rem;
+  border-radius: 999px;
+  background: #4d4d4d;
+  overflow: hidden;
+}
+
+.progressLine i,
+.volumeLine i {
+  display: block;
+  width: 35%;
+  height: 100%;
+  border-radius: inherit;
+  background: #fff;
+}
+
+.volumeBox {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  color: #b3b3b3;
+}
+
+.volumeLine {
+  width: min(8rem, 45%);
+}
+
+.volumeLine i {
+  width: 70%;
+}
+
+.youtubeFrame {
+  position: fixed;
+  right: 1rem;
+  bottom: 6.8rem;
+  z-index: 10;
+  width: min(24rem, calc(100vw - 2rem));
+  aspect-ratio: 16 / 9;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #000;
+  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.55);
+}
+
+.youtubeFrame iframe {
   width: 100%;
-  margin-top: auto;
+  height: 100%;
+  border: 0;
 }
 
-.shareButton {
-  margin-top: -0.75rem;
-}
-
-@media (max-width: 980px) {
+@media (max-width: 1020px) {
   body {
     overflow: auto;
   }
 
-  .sidebar {
+  .spotifyApp {
+    min-height: 100vh;
+    height: auto;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+
+  .spotifySidebar {
     display: none;
   }
 
-  .shell {
-    min-height: auto;
-    margin-left: 0;
-    padding: 1rem 1rem 12rem;
-  }
-
-  .topbar,
-  .topActions {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .contentGrid {
+  .contentSplit {
     grid-template-columns: 1fr;
   }
 
-  .coverWrap {
-    width: min(84vw, 27rem);
-    min-width: 0;
+  .queuePanel {
+    position: static;
   }
 
-  .infoRail {
-    max-width: 42rem;
+  .spotifyPlayer {
+    position: sticky;
+    bottom: 0;
+    grid-template-columns: 1fr;
+  }
+
+  .volumeBox {
+    display: none;
+  }
+
+  .youtubeFrame {
+    position: static;
     width: 100%;
-    justify-self: center;
+    margin-top: 0.5rem;
   }
 }
 
-@media (max-width: 560px) {
-  .controls {
-    border-radius: 1rem;
-    padding: 0.9rem;
+@media (max-width: 680px) {
+  .spotifyTop,
+  .heroPlayer {
+    grid-template-columns: 1fr;
   }
 
-  .controlButtons {
-    gap: 0.25rem;
+  .spotifyTop {
+    align-items: stretch;
   }
 
-  .controlButtons button {
-    min-width: 2.35rem;
+  .trackGrid {
+    grid-template-columns: 1fr;
   }
 
-  .controlButtons .playButton {
-    width: 3.6rem;
-    height: 3.6rem;
+  .trackRow {
+    grid-template-columns: 2rem 3rem minmax(0, 1fr) 3.5rem;
   }
 
-  .trackInfo h2 {
-    letter-spacing: 0.04em;
+  .trackRow > span:nth-last-child(2) {
+    display: none;
+  }
+
+  .heroPlayer img {
+    width: min(14rem, 70vw);
   }
 }

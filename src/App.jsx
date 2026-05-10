@@ -1,219 +1,100 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
-  CloudRain,
-  Disc3,
   Heart,
+  Home,
   Library,
   ListMusic,
   Pause,
   Play,
-  Settings,
-  Share2,
+  Search,
   Shuffle,
   SkipBack,
   SkipForward,
-  SlidersHorizontal,
-  Sparkles,
-  Volume2,
-  Waves,
-  Wind
+  Volume2
 } from "lucide-react";
 import "./styles.css";
 
-const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
+const YOUTUBE_API_KEY =
+  import.meta.env.VITE_YOUTUBE_API_KEY || "AIzaSyD5c_RfbdsYFgTjGJ81ZAaHWRI58nE-_2w";
 
-const spaces = [
+const featuredTracks = [
   {
-    id: "balcony",
-    name: "Sunset Balcony",
-    time: "22:15",
-    weather: "Partly Cloudy",
-    track: "Midnight Reflection",
-    artist: "Noctis Original Series",
-    length: 282,
-    color: "#a2c9ff",
-    accent: "#ffb37c",
-    background:
-      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80",
-    cover:
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80",
-    layers: [
-      { id: "breeze", name: "Warm Breeze", icon: Wind, level: 58 },
-      { id: "waves", name: "Distant Waves", icon: Waves, level: 35 },
-      { id: "traffic", name: "Night Traffic", icon: Volume2, level: 18 }
-    ],
-    note:
-      "The golden hour never truly ends here. Let the pulse of the coastal city sync with your breath."
+    id: "jfKfPfyJRdk",
+    title: "lofi hip hop radio",
+    artist: "Lofi Girl",
+    album: "beats to relax/study to",
+    duration: "LIVE",
+    image: "https://i.ytimg.com/vi/jfKfPfyJRdk/hqdefault.jpg"
   },
   {
-    id: "greenhouse",
-    name: "Rainy Greenhouse",
-    time: "01:08",
-    weather: "Heavy Rain",
-    track: "Glasshouse Afterglow",
-    artist: "Soul Test Archive",
-    length: 318,
-    color: "#b8dec0",
-    accent: "#a2c9ff",
-    background:
-      "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=1800&q=80",
-    cover:
-      "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=900&q=80",
-    layers: [
-      { id: "rain", name: "Rain Intensity", icon: CloudRain, level: 74 },
-      { id: "leaves", name: "Leaf Drip", icon: Sparkles, level: 42 },
-      { id: "glass", name: "Glass Resonance", icon: Disc3, level: 26 }
-    ],
-    note:
-      "A quiet room of wet leaves, glass, and low synth bloom. Soft enough for thinking, alive enough to stay awake."
+    id: "4xDzrJKXOOY",
+    title: "synthwave radio",
+    artist: "ThePrimeThanatos",
+    album: "beats to chill/game to",
+    duration: "LIVE",
+    image: "https://i.ytimg.com/vi/4xDzrJKXOOY/hqdefault.jpg"
   },
   {
-    id: "window",
-    name: "Mood Mode",
-    time: "03:33",
-    weather: "City Rain",
-    track: "Midnight Echoes",
-    artist: "Lune Orchestral",
-    length: 292,
-    color: "#d6c7ff",
-    accent: "#f5b36d",
-    background:
-      "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=1800&q=80",
-    cover:
-      "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80",
-    layers: [
-      { id: "rain", name: "Rain Intensity", icon: CloudRain, level: 68 },
-      { id: "thunder", name: "Distant Thunder", icon: Sparkles, level: 20 },
-      { id: "vinyl", name: "Vinyl Crackle", icon: Disc3, level: 45 }
-    ],
-    note:
-      "A rain-streaked window, blurred lights, and one slow melody holding the room together."
+    id: "5qap5aO4i9A",
+    title: "lofi hip hop beats",
+    artist: "ChilledCow",
+    album: "classic radio",
+    duration: "LIVE",
+    image: "https://i.ytimg.com/vi/5qap5aO4i9A/hqdefault.jpg"
+  },
+  {
+    id: "DWcJFNfaw9c",
+    title: "jazzhop cafe",
+    artist: "Cafe Music BGM",
+    album: "night playlist",
+    duration: "3:02:20",
+    image: "https://i.ytimg.com/vi/DWcJFNfaw9c/hqdefault.jpg"
+  },
+  {
+    id: "hHW1oY26kxQ",
+    title: "ambient study music",
+    artist: "Quiet Quest",
+    album: "deep focus",
+    duration: "2:59:33",
+    image: "https://i.ytimg.com/vi/hHW1oY26kxQ/hqdefault.jpg"
   }
 ];
 
-function formatTime(seconds) {
-  const min = Math.floor(seconds / 60);
-  const sec = Math.floor(seconds % 60);
-  return `${min}:${sec.toString().padStart(2, "0")}`;
-}
-
-function useNoctisAudio(isPlaying, space, mix) {
-  const audioRef = useRef(null);
-
-  useEffect(() => {
-    if (!isPlaying) {
-      if (audioRef.current) {
-        audioRef.current.master.gain.setTargetAtTime(0, audioRef.current.ctx.currentTime, 0.08);
-      }
-      return;
-    }
-
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContext) return;
-
-    const ctx = audioRef.current?.ctx || new AudioContext();
-    ctx.resume();
-
-    if (!audioRef.current) {
-      const master = ctx.createGain();
-      master.gain.value = 0;
-      master.connect(ctx.destination);
-
-      const oscillators = [110, 165, 220].map((frequency, index) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = index === 1 ? "triangle" : "sine";
-        osc.frequency.value = frequency;
-        gain.gain.value = 0.045;
-        osc.connect(gain);
-        gain.connect(master);
-        osc.start();
-        return { osc, gain };
-      });
-
-      const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
-      const channel = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < channel.length; i += 1) {
-        channel[i] = Math.random() * 2 - 1;
-      }
-      const noise = ctx.createBufferSource();
-      const noiseGain = ctx.createGain();
-      const filter = ctx.createBiquadFilter();
-      noise.buffer = noiseBuffer;
-      noise.loop = true;
-      filter.type = "lowpass";
-      filter.frequency.value = 900;
-      noiseGain.gain.value = 0.02;
-      noise.connect(filter);
-      filter.connect(noiseGain);
-      noiseGain.connect(master);
-      noise.start();
-
-      audioRef.current = { ctx, master, oscillators, noiseGain, filter };
-    }
-
-    const engine = audioRef.current;
-    const base = space.id === "greenhouse" ? 98 : space.id === "window" ? 82 : 110;
-    engine.oscillators.forEach(({ osc, gain }, index) => {
-      osc.frequency.setTargetAtTime(base * [1, 1.5, 2][index], ctx.currentTime, 0.12);
-      gain.gain.setTargetAtTime(0.025 + mix[index % mix.length].level / 2600, ctx.currentTime, 0.2);
-    });
-    engine.noiseGain.gain.setTargetAtTime(0.01 + mix[0].level / 2400, ctx.currentTime, 0.2);
-    engine.filter.frequency.setTargetAtTime(550 + mix[1].level * 12, ctx.currentTime, 0.2);
-    engine.master.gain.setTargetAtTime(0.8, ctx.currentTime, 0.08);
-  }, [isPlaying, space, mix]);
+function cleanText(value) {
+  const div = document.createElement("div");
+  div.innerHTML = value;
+  return div.textContent || value;
 }
 
 function App() {
-  const [spaceIndex, setSpaceIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [elapsed, setElapsed] = useState(84);
-  const [favorite, setFavorite] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [youtubeQuery, setYoutubeQuery] = useState("");
-  const [youtubeResults, setYoutubeResults] = useState([]);
-  const [youtubeStatus, setYoutubeStatus] = useState("idle");
-  const [selectedVideo, setSelectedVideo] = useState(null);
-  const [mixes, setMixes] = useState(() =>
-    Object.fromEntries(spaces.map((space) => [space.id, space.layers]))
+  const [query, setQuery] = useState("lofi night drive");
+  const [tracks, setTracks] = useState(featuredTracks);
+  const [current, setCurrent] = useState(featuredTracks[0]);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [liked, setLiked] = useState(false);
+  const [status, setStatus] = useState("Ready");
+
+  const queue = useMemo(
+    () => tracks.filter((track) => track.id !== current.id).slice(0, 8),
+    [tracks, current]
   );
 
-  const space = spaces[spaceIndex];
-  const mix = mixes[space.id];
-  const progress = Math.min(100, (elapsed / space.length) * 100);
-  const visualStyle = useMemo(
-    () => ({
-      "--space-color": space.color,
-      "--space-accent": space.accent,
-      "--progress": `${progress}%`
-    }),
-    [space, progress]
-  );
-
-  useNoctisAudio(isPlaying, space, mix);
-
   useEffect(() => {
-    setYoutubeQuery(`${space.track} ${space.artist} music`);
-  }, [space]);
-
-  useEffect(() => {
-    if (!YOUTUBE_API_KEY || !youtubeQuery.trim()) {
-      setYoutubeResults([]);
-      setSelectedVideo(null);
-      setYoutubeStatus(YOUTUBE_API_KEY ? "idle" : "missing-key");
+    if (!query.trim()) {
+      setTracks(featuredTracks);
+      setStatus("Ready");
       return undefined;
     }
 
     const controller = new AbortController();
-    const timeout = window.setTimeout(async () => {
-      setYoutubeStatus("loading");
-
+    const timer = window.setTimeout(async () => {
+      setStatus("Searching YouTube");
       try {
         const params = new URLSearchParams({
           part: "snippet",
-          maxResults: "5",
-          q: youtubeQuery,
+          maxResults: "12",
+          q: `${query} music`,
           type: "video",
           videoCategoryId: "10",
           key: YOUTUBE_API_KEY
@@ -223,324 +104,226 @@ function App() {
           { signal: controller.signal }
         );
         const payload = await response.json();
+        if (!response.ok) throw new Error(payload?.error?.message || "YouTube search failed");
 
-        if (!response.ok) {
-          throw new Error(payload?.error?.message || "YouTube search failed");
-        }
-
-        const results = payload.items
+        const nextTracks = payload.items
           .filter((item) => item.id?.videoId)
           .map((item) => ({
             id: item.id.videoId,
-            title: item.snippet.title,
-            channel: item.snippet.channelTitle,
-            thumb:
+            title: cleanText(item.snippet.title),
+            artist: cleanText(item.snippet.channelTitle),
+            album: "YouTube Music",
+            duration: "--:--",
+            image:
               item.snippet.thumbnails?.medium?.url ||
+              item.snippet.thumbnails?.high?.url ||
               item.snippet.thumbnails?.default?.url
           }));
 
-        setYoutubeResults(results);
-        setSelectedVideo((current) => current || results[0] || null);
-        setYoutubeStatus(results.length ? "ready" : "empty");
+        setTracks(nextTracks.length ? nextTracks : featuredTracks);
+        setStatus(nextTracks.length ? "YouTube results" : "No results, showing featured");
       } catch (error) {
         if (error.name !== "AbortError") {
-          setYoutubeStatus(error.message);
-          setYoutubeResults([]);
+          setTracks(featuredTracks);
+          setStatus("Search failed, showing featured");
         }
       }
-    }, 350);
+    }, 450);
 
     return () => {
-      window.clearTimeout(timeout);
+      window.clearTimeout(timer);
       controller.abort();
     };
-  }, [youtubeQuery]);
+  }, [query]);
 
-  useEffect(() => {
-    if (!isPlaying) return undefined;
-    const timer = window.setInterval(() => {
-      setElapsed((current) => (current >= space.length ? 0 : current + 1));
-    }, 1000);
-    return () => window.clearInterval(timer);
-  }, [isPlaying, space.length]);
-
-  function chooseSpace(nextIndex) {
-    setSpaceIndex(nextIndex);
-    setElapsed(Math.round(spaces[nextIndex].length * 0.3));
-    setSelectedVideo(null);
+  function playTrack(track) {
+    setCurrent(track);
+    setIsPlaying(true);
+    setLiked(false);
   }
 
   function skip(direction) {
-    const next = (spaceIndex + direction + spaces.length) % spaces.length;
-    chooseSpace(next);
-  }
-
-  function updateLayer(layerId, level) {
-    setMixes((current) => ({
-      ...current,
-      [space.id]: current[space.id].map((layer) =>
-        layer.id === layerId ? { ...layer, level: Number(level) } : layer
-      )
-    }));
+    const list = tracks.length ? tracks : featuredTracks;
+    const index = list.findIndex((track) => track.id === current.id);
+    const next = list[(index + direction + list.length) % list.length] || list[0];
+    playTrack(next);
   }
 
   return (
-    <main className="app" style={visualStyle}>
-      <div className="backdrop" aria-hidden="true">
-        <img src={space.background} alt="" />
-        <div className="backdropTint" />
-      </div>
-
-      <aside className="sidebar" aria-label="Primary">
-        <div>
-          <p className="brand">Noctis</p>
-          <p className="eyebrow">Cinematic Audio</p>
-        </div>
-        <nav className="sideNav">
-          <a className="sideLink" href="#library">
-            <Library size={20} /> Library
+    <main className="spotifyApp">
+      <aside className="spotifySidebar">
+        <div className="logo">Lune</div>
+        <nav>
+          <a className="navItem active" href="#home">
+            <Home size={22} /> Home
           </a>
-          <a className="sideLink active" href="#spaces">
-            <Sparkles size={20} /> Spaces
+          <a className="navItem" href="#search">
+            <Search size={22} /> Search
           </a>
-          <a className="sideLink" href="#settings">
-            <Settings size={20} /> Settings
+          <a className="navItem" href="#library">
+            <Library size={22} /> Your Library
           </a>
         </nav>
-        <div className="profile">
-          <div className="avatar">N</div>
-          <div>
-            <strong>Alex Chen</strong>
-            <span>Premium Member</span>
-          </div>
+        <div className="playlistBox">
+          <strong>Playlists</strong>
+          <span>Noctis Mix</span>
+          <span>Late Night Drive</span>
+          <span>Focus Radio</span>
+          <span>Soul Test Archive</span>
         </div>
       </aside>
 
-      <section className="shell">
-        <header className="topbar">
-          <div>
-            <p className="eyebrow">Space</p>
-            <h1>{space.name}</h1>
-          </div>
-          <div className="topActions">
-            <span>
-              {space.time} / {space.weather}
-            </span>
-            <button type="button" className="pillButton" onClick={() => setDrawerOpen(true)}>
-              <SlidersHorizontal size={17} /> Mixer
-            </button>
-          </div>
+      <section className="spotifyMain" id="home">
+        <header className="spotifyTop">
+          <label className="searchBar" id="search">
+            <Search size={19} />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="What do you want to play?"
+              type="search"
+            />
+          </label>
+          <span className="status">{status}</span>
         </header>
 
-        <section className="contentGrid">
-          <section className="playerStage" aria-label="Now playing">
-            <div className="trackInfo">
-              <p className="eyebrow">Now Introspecting</p>
-              <h2>{space.track}</h2>
-              <p>{space.artist}</p>
+        <section className="heroPlayer">
+          <img src={current.image} alt="" />
+          <div>
+            <span className="label">Now playing from YouTube</span>
+            <h1>{current.title}</h1>
+            <p>{current.artist}</p>
+            <div className="heroButtons">
+              <button className="greenButton" onClick={() => setIsPlaying(true)} type="button">
+                <Play size={20} fill="currentColor" /> Play
+              </button>
+              <button className="ghostButton" onClick={() => setLiked((value) => !value)} type="button">
+                <Heart size={20} fill={liked ? "currentColor" : "none"} /> Save
+              </button>
             </div>
-            <div className="coverWrap">
-              <img src={space.cover} alt={`${space.track} cover art`} className="cover" />
-              <div className="coverReflection" />
+          </div>
+        </section>
+
+        <section className="contentSplit">
+          <section>
+            <div className="sectionHeader">
+              <h2>Good evening</h2>
+              <span>{tracks.length} tracks</span>
             </div>
-            {selectedVideo && (
-              <div className="youtubePlayer" aria-label="YouTube player">
-                <iframe
-                  title={selectedVideo.title}
-                  src={`https://www.youtube.com/embed/${selectedVideo.id}?rel=0&modestbranding=1&autoplay=${
-                    isPlaying ? "1" : "0"
-                  }`}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
-              </div>
-            )}
+            <div className="trackGrid">
+              {tracks.slice(0, 6).map((track) => (
+                <button
+                  key={track.id}
+                  className={`trackCard ${current.id === track.id ? "selected" : ""}`}
+                  onClick={() => playTrack(track)}
+                  type="button"
+                >
+                  <img src={track.image} alt="" />
+                  <span>
+                    <strong>{track.title}</strong>
+                    <small>{track.artist}</small>
+                  </span>
+                  <Play className="cardPlay" size={18} fill="currentColor" />
+                </button>
+              ))}
+            </div>
+
+            <div className="sectionHeader tableTitle">
+              <h2>Search results</h2>
+              <span>Click any row to play</span>
+            </div>
+            <div className="trackTable">
+              {tracks.map((track, index) => (
+                <button
+                  className={`trackRow ${current.id === track.id ? "selected" : ""}`}
+                  key={`${track.id}-${index}`}
+                  onClick={() => playTrack(track)}
+                  type="button"
+                >
+                  <span className="rowIndex">{index + 1}</span>
+                  <img src={track.image} alt="" />
+                  <span className="rowTitle">
+                    <strong>{track.title}</strong>
+                    <small>{track.artist}</small>
+                  </span>
+                  <span>{track.album}</span>
+                  <span>{track.duration}</span>
+                </button>
+              ))}
+            </div>
           </section>
 
-          <aside className="infoRail" id="spaces">
-            <section className="panel">
-              <div className="panelHeader">
-                <p className="eyebrow">Mood Selector</p>
-                <Shuffle size={18} />
-              </div>
-              <div className="spaceList">
-                {spaces.map((item, index) => (
-                  <button
-                    type="button"
-                    key={item.id}
-                    className={`spaceChoice ${index === spaceIndex ? "selected" : ""}`}
-                    onClick={() => chooseSpace(index)}
-                  >
-                    <span>{item.name}</span>
-                    <small>{item.track}</small>
-                  </button>
-                ))}
-              </div>
-            </section>
-
-            <section className="panel">
-              <p className="eyebrow">Ambience Layers</p>
-              <div className="layerList">
-                {mix.map((layer) => {
-                  const Icon = layer.icon;
-                  return (
-                    <label className="layer" key={layer.id}>
-                      <span>
-                        <Icon size={19} /> {layer.name}
-                      </span>
-                      <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value={layer.level}
-                        onChange={(event) => updateLayer(layer.id, event.target.value)}
-                        aria-label={layer.name}
-                      />
-                    </label>
-                  );
-                })}
-              </div>
-            </section>
-
-            <section className="panel youtubePanel">
-              <div className="panelHeader">
-                <p className="eyebrow">YouTube Music</p>
-                <Volume2 size={18} />
-              </div>
-              <label className="searchBox">
-                <span>Search track</span>
-                <input
-                  type="search"
-                  value={youtubeQuery}
-                  onChange={(event) => setYoutubeQuery(event.target.value)}
-                  placeholder="Search YouTube music"
-                />
-              </label>
-              {youtubeStatus === "missing-key" && (
-                <p className="youtubeMessage">Add VITE_YOUTUBE_API_KEY to enable search.</p>
-              )}
-              {youtubeStatus === "loading" && <p className="youtubeMessage">Searching...</p>}
-              {youtubeStatus !== "missing-key" && youtubeResults.length > 0 && (
-                <div className="videoList">
-                  {youtubeResults.map((video) => (
-                    <button
-                      type="button"
-                      key={video.id}
-                      className={`videoChoice ${selectedVideo?.id === video.id ? "selected" : ""}`}
-                      onClick={() => {
-                        setSelectedVideo(video);
-                        setIsPlaying(true);
-                      }}
-                    >
-                      {video.thumb && <img src={video.thumb} alt="" />}
-                      <span>
-                        <strong>{video.title}</strong>
-                        <small>{video.channel}</small>
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-              {typeof youtubeStatus === "string" &&
-                !["idle", "ready", "loading", "missing-key"].includes(youtubeStatus) && (
-                  <p className="youtubeMessage">{youtubeStatus}</p>
-                )}
-            </section>
-
-            <section className="quotePanel">
-              <p>{space.note}</p>
-            </section>
+          <aside className="queuePanel">
+            <h2>Up next</h2>
+            {queue.map((track) => (
+              <button className="queueItem" key={track.id} onClick={() => playTrack(track)} type="button">
+                <img src={track.image} alt="" />
+                <span>
+                  <strong>{track.title}</strong>
+                  <small>{track.artist}</small>
+                </span>
+              </button>
+            ))}
           </aside>
         </section>
       </section>
 
-      <nav className="controls" aria-label="Playback controls">
-        <div className="timeline">
-          <button
-            type="button"
-            className="timelineTrack"
-            aria-label="Seek track"
-            onClick={(event) => {
-              const rect = event.currentTarget.getBoundingClientRect();
-              setElapsed(Math.round(((event.clientX - rect.left) / rect.width) * space.length));
-            }}
-          >
-            <span />
-          </button>
-          <div className="timeRow">
-            <span>{formatTime(elapsed)}</span>
-            <span>{formatTime(space.length)}</span>
-          </div>
-        </div>
-        <div className="controlButtons">
-          <button type="button" aria-label="Queue">
-            <ListMusic size={22} />
-          </button>
-          <button type="button" aria-label="Previous" onClick={() => skip(-1)}>
-            <SkipBack size={25} />
-          </button>
-          <button
-            type="button"
-            className="playButton"
-            aria-label={isPlaying ? "Pause" : "Play"}
-            onClick={() => setIsPlaying((current) => !current)}
-          >
-            {isPlaying ? <Pause size={34} /> : <Play size={34} fill="currentColor" />}
-          </button>
-          <button type="button" aria-label="Next" onClick={() => skip(1)}>
-            <SkipForward size={25} />
-          </button>
-          <button
-            type="button"
-            className={favorite ? "liked" : ""}
-            aria-label="Favorite"
-            onClick={() => setFavorite((current) => !current)}
-          >
-            <Heart size={22} fill={favorite ? "currentColor" : "none"} />
+      <footer className="spotifyPlayer">
+        <div className="miniTrack">
+          <img src={current.image} alt="" />
+          <span>
+            <strong>{current.title}</strong>
+            <small>{current.artist}</small>
+          </span>
+          <button className={liked ? "liked iconButton" : "iconButton"} onClick={() => setLiked((value) => !value)} type="button">
+            <Heart size={18} fill={liked ? "currentColor" : "none"} />
           </button>
         </div>
-      </nav>
 
-      <div className={`drawer ${drawerOpen ? "open" : ""}`} aria-hidden={!drawerOpen}>
-        <div className="drawerHeader">
-          <div>
-            <p className="eyebrow">Live Mixer</p>
-            <h3>{space.name}</h3>
+        <div className="centerControls">
+          <div className="buttonRow">
+            <button className="iconButton" type="button">
+              <Shuffle size={18} />
+            </button>
+            <button className="iconButton" onClick={() => skip(-1)} type="button">
+              <SkipBack size={21} />
+            </button>
+            <button className="roundPlay" onClick={() => setIsPlaying((value) => !value)} type="button">
+              {isPlaying ? <Pause size={22} fill="currentColor" /> : <Play size={22} fill="currentColor" />}
+            </button>
+            <button className="iconButton" onClick={() => skip(1)} type="button">
+              <SkipForward size={21} />
+            </button>
+            <button className="iconButton" type="button">
+              <ListMusic size={18} />
+            </button>
           </div>
-          <button type="button" onClick={() => setDrawerOpen(false)}>
-            Close
-          </button>
+          <div className="progressLine">
+            <span>0:00</span>
+            <div>
+              <i />
+            </div>
+            <span>{current.duration}</span>
+          </div>
         </div>
-        {mix.map((layer) => (
-          <label className="drawerLayer" key={layer.id}>
-            <span>
-              {layer.name}
-              <strong>{layer.level}%</strong>
-            </span>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={layer.level}
-              onChange={(event) => updateLayer(layer.id, event.target.value)}
-            />
-          </label>
-        ))}
-        <button
-          type="button"
-          className="resetButton"
-          onClick={() =>
-            setMixes((current) => ({
-              ...current,
-              [space.id]: spaces.find((item) => item.id === space.id).layers
-            }))
-          }
-        >
-          Reset Space
-        </button>
-        <button type="button" className="shareButton">
-          <Share2 size={17} /> Share Mood
-        </button>
+
+        <div className="volumeBox">
+          <Volume2 size={18} />
+          <div className="volumeLine">
+            <i />
+          </div>
+        </div>
+      </footer>
+
+      <div className="youtubeFrame" aria-hidden={!isPlaying}>
+        <iframe
+          title={current.title}
+          src={`https://www.youtube.com/embed/${current.id}?autoplay=${
+            isPlaying ? "1" : "0"
+          }&rel=0&modestbranding=1&playsinline=1`}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+        />
       </div>
     </main>
   );
