@@ -226,14 +226,19 @@ const libraryRows = [
 function App() {
   const [view, setView] = useState("spaces");
   const [activeId, setActiveId] = useState(spaceData[0].id);
+  const [customActive, setCustomActive] = useState(null);
   const [playing, setPlaying] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
+  const [adPlaying, setAdPlaying] = useState(false);
+  const [adRemaining, setAdRemaining] = useState(0);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [liked, setLiked] = useState(false);
   const [mix, setMix] = useState([68, 42, 23]);
 
-  const active = spaceData.find((space) => space.id === activeId) || spaceData[0];
+  const active = customActive || spaceData.find((space) => space.id === activeId) || spaceData[0];
   const Icon = active.icon;
+  const duration = active.id?.startsWith("yt-") ? 242 : 282;
   const visibleSpaces = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return spaceData;
@@ -244,6 +249,28 @@ function App() {
         space.artist.toLowerCase().includes(q)
     );
   }, [query]);
+
+  useEffect(() => {
+    if (!playing) return undefined;
+    const timer = window.setInterval(() => {
+      setElapsed((current) => (current >= duration ? 0 : current + 1));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [playing, duration]);
+
+  useEffect(() => {
+    if (!adPlaying || !playing) return undefined;
+    const timer = window.setInterval(() => {
+      setAdRemaining((current) => {
+        if (current <= 1) {
+          setAdPlaying(false);
+          return 0;
+        }
+        return current - 1;
+      });
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [adPlaying, playing]);
 
   useEffect(() => {
     if (!query.trim()) {
@@ -287,16 +314,37 @@ function App() {
   }, [query]);
 
   function openSpace(space) {
+    const builtIn = spaceData.some((item) => item.id === space.id);
+    setCustomActive(builtIn ? null : space);
     setActiveId(space.id);
     setView("player");
     setPlaying(true);
+    setElapsed(0);
+    setAdPlaying(true);
+    setAdRemaining(6);
     setLiked(false);
     setMix([68, 42, 23]);
   }
 
   function skip(direction) {
     const index = spaceData.findIndex((space) => space.id === active.id);
+    setCustomActive(null);
     openSpace(spaceData[(index + direction + spaceData.length) % spaceData.length]);
+  }
+
+  function togglePlayback() {
+    setPlaying((value) => !value);
+  }
+
+  function skipAd() {
+    setAdPlaying(false);
+    setAdRemaining(0);
+  }
+
+  function formatTime(value) {
+    const minutes = Math.floor(value / 60);
+    const seconds = Math.floor(value % 60);
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   }
 
   const style = {
@@ -370,25 +418,52 @@ function App() {
       <footer className="bottomPlayer">
         <img src={active.cover} alt="" />
         <div className="miniTitle">
+          {adPlaying && <em>Advertisement playing / {adRemaining}s</em>}
           <strong>{active.track}</strong>
           <span>{active.artist}</span>
         </div>
-        <div className="transport">
-          <button type="button" onClick={() => skip(-1)} aria-label="Previous space">
-            <SkipBack size={22} />
-          </button>
-          <button className="playCore" type="button" onClick={() => setPlaying((value) => !value)} aria-label="Play">
-            {playing ? <Pause size={25} fill="currentColor" /> : <Play size={25} fill="currentColor" />}
-          </button>
-          <button type="button" onClick={() => skip(1)} aria-label="Next space">
-            <SkipForward size={22} />
-          </button>
+        <div className="transportArea">
+          {adPlaying && (
+            <button className="adSkip" type="button" onClick={skipAd}>
+              Skip Ad
+            </button>
+          )}
+          <div className="transport">
+            <button type="button" onClick={() => skip(-1)} aria-label="Previous space">
+              <SkipBack size={22} />
+            </button>
+            <button
+              className={adPlaying ? "playCore adCore" : "playCore"}
+              type="button"
+              onClick={togglePlayback}
+              aria-label={playing ? "Pause" : "Play"}
+            >
+              {playing ? <Pause size={25} fill="currentColor" /> : <Play size={25} fill="currentColor" />}
+            </button>
+            <button type="button" onClick={() => skip(1)} aria-label="Next space">
+              <SkipForward size={22} />
+            </button>
+          </div>
+          <div className="progressBar" aria-label={adPlaying ? "Advertisement progress" : "Track progress"}>
+            <small>{adPlaying ? "Ad" : formatTime(elapsed)}</small>
+            <span>
+              <i style={{ width: adPlaying ? `${((6 - adRemaining) / 6) * 100}%` : `${(elapsed / duration) * 100}%` }} />
+            </span>
+            <small>{adPlaying ? `${adRemaining}s` : formatTime(duration)}</small>
+          </div>
         </div>
         <div className="volume">
           <Volume2 size={18} />
           <span />
         </div>
       </footer>
+
+      {adPlaying && (
+        <div className="adToast" role="status">
+          <strong>Advertisement</strong>
+          <span>Playback controls stay active while the ad is playing.</span>
+        </div>
+      )}
 
       <iframe
         className="audioOnly"
@@ -586,7 +661,14 @@ function PlayerScreen({ active, Icon, liked, mix, setMix, setLiked, results, ope
                   track: result.title,
                   artist: result.artist,
                   video: result.id,
-                  cover: result.cover
+                  cover: result.cover,
+                  icon: Sparkles,
+                  palette: active.palette,
+                  bg: active.bg,
+                  weather: "YouTube Music",
+                  quote: "A selected track from YouTube search is now playing inside the Lune interface.",
+                  layers: active.layers,
+                  layout: active.layout
                 })
               }
             >
